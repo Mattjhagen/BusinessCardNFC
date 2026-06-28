@@ -1,6 +1,7 @@
 package com.tapcard.app;
 
 import com.tapcard.app.di.AppModule;
+import com.tapcard.app.ui.viewmodel.AuthViewModel_HiltModules;
 import com.tapcard.app.ui.viewmodel.ProfileViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
@@ -143,6 +144,7 @@ public final class TapCardApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AuthViewModel_HiltModules.KeyModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           ProfileViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
@@ -182,6 +184,7 @@ public final class TapCardApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AuthViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           ProfileViewModel_HiltModules.BindsModule.class
       }

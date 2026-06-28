@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tapcard.app.domain.model.Profile
+import com.tapcard.app.domain.model.SyncStatus
 import com.tapcard.app.domain.repository.ProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.graphics.Bitmap
@@ -39,6 +41,13 @@ class ProfileViewModel @Inject constructor(
     private val _isSaved = MutableStateFlow(false)
     val isSaved = _isSaved.asStateFlow()
 
+    val syncStatus: StateFlow<SyncStatus> = repository.syncStatus
+        .stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+            initialValue = SyncStatus.SAVED_LOCALLY
+        )
+
     init {
         viewModelScope.launch {
             repository.getProfileFlow().collect { profile ->
@@ -63,6 +72,10 @@ class ProfileViewModel @Inject constructor(
     fun getShareableUrl(): String {
         val username = profileState.value.username.ifBlank { profileState.value.id.toString() }
         return "https://tapcard.app/card/$username"
+    }
+
+    suspend fun validateUsername(username: String): Boolean {
+        return repository.validateUsernameUniqueness(username)
     }
 
     fun saveQrToGallery(bitmap: Bitmap): Boolean {

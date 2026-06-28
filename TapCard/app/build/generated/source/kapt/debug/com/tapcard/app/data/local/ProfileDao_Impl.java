@@ -36,7 +36,7 @@ public final class ProfileDao_Impl implements ProfileDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `profile` (`id`,`fullName`,`jobTitle`,`company`,`phone`,`email`,`website`,`username`,`themeColorHex`,`isDarkTheme`) VALUES (?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `profile` (`id`,`fullName`,`jobTitle`,`company`,`phone`,`email`,`website`,`username`,`themeColorHex`,`isDarkTheme`,`isPendingSync`) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -89,6 +89,8 @@ public final class ProfileDao_Impl implements ProfileDao {
         }
         final int _tmp = entity.isDarkTheme() ? 1 : 0;
         statement.bindLong(10, _tmp);
+        final int _tmp_1 = entity.isPendingSync() ? 1 : 0;
+        statement.bindLong(11, _tmp_1);
       }
     };
   }
@@ -132,6 +134,7 @@ public final class ProfileDao_Impl implements ProfileDao {
           final int _cursorIndexOfUsername = CursorUtil.getColumnIndexOrThrow(_cursor, "username");
           final int _cursorIndexOfThemeColorHex = CursorUtil.getColumnIndexOrThrow(_cursor, "themeColorHex");
           final int _cursorIndexOfIsDarkTheme = CursorUtil.getColumnIndexOrThrow(_cursor, "isDarkTheme");
+          final int _cursorIndexOfIsPendingSync = CursorUtil.getColumnIndexOrThrow(_cursor, "isPendingSync");
           final ProfileEntity _result;
           if (_cursor.moveToFirst()) {
             final String _tmpId;
@@ -192,7 +195,11 @@ public final class ProfileDao_Impl implements ProfileDao {
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfIsDarkTheme);
             _tmpIsDarkTheme = _tmp != 0;
-            _result = new ProfileEntity(_tmpId,_tmpFullName,_tmpJobTitle,_tmpCompany,_tmpPhone,_tmpEmail,_tmpWebsite,_tmpUsername,_tmpThemeColorHex,_tmpIsDarkTheme);
+            final boolean _tmpIsPendingSync;
+            final int _tmp_1;
+            _tmp_1 = _cursor.getInt(_cursorIndexOfIsPendingSync);
+            _tmpIsPendingSync = _tmp_1 != 0;
+            _result = new ProfileEntity(_tmpId,_tmpFullName,_tmpJobTitle,_tmpCompany,_tmpPhone,_tmpEmail,_tmpWebsite,_tmpUsername,_tmpThemeColorHex,_tmpIsDarkTheme,_tmpIsPendingSync);
           } else {
             _result = null;
           }
@@ -230,6 +237,7 @@ public final class ProfileDao_Impl implements ProfileDao {
           final int _cursorIndexOfUsername = CursorUtil.getColumnIndexOrThrow(_cursor, "username");
           final int _cursorIndexOfThemeColorHex = CursorUtil.getColumnIndexOrThrow(_cursor, "themeColorHex");
           final int _cursorIndexOfIsDarkTheme = CursorUtil.getColumnIndexOrThrow(_cursor, "isDarkTheme");
+          final int _cursorIndexOfIsPendingSync = CursorUtil.getColumnIndexOrThrow(_cursor, "isPendingSync");
           final ProfileEntity _result;
           if (_cursor.moveToFirst()) {
             final String _tmpId;
@@ -290,7 +298,11 @@ public final class ProfileDao_Impl implements ProfileDao {
             final int _tmp;
             _tmp = _cursor.getInt(_cursorIndexOfIsDarkTheme);
             _tmpIsDarkTheme = _tmp != 0;
-            _result = new ProfileEntity(_tmpId,_tmpFullName,_tmpJobTitle,_tmpCompany,_tmpPhone,_tmpEmail,_tmpWebsite,_tmpUsername,_tmpThemeColorHex,_tmpIsDarkTheme);
+            final boolean _tmpIsPendingSync;
+            final int _tmp_1;
+            _tmp_1 = _cursor.getInt(_cursorIndexOfIsPendingSync);
+            _tmpIsPendingSync = _tmp_1 != 0;
+            _result = new ProfileEntity(_tmpId,_tmpFullName,_tmpJobTitle,_tmpCompany,_tmpPhone,_tmpEmail,_tmpWebsite,_tmpUsername,_tmpThemeColorHex,_tmpIsDarkTheme,_tmpIsPendingSync);
           } else {
             _result = null;
           }

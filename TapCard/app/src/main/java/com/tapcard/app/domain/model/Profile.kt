@@ -10,5 +10,6 @@ data class Profile(
     val website: String = "",
     val username: String = "",
     val themeColorHex: String = "#000000",
-    val isDarkTheme: Boolean = true
+    val isDarkTheme: Boolean = true,
+    val isPendingSync: Boolean = false
 )

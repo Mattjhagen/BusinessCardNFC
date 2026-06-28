@@ -32,6 +32,7 @@ import com.tapcard.app.utils.QRCodeGenerator
 import com.tapcard.app.utils.NfcState
 import com.tapcard.app.ui.viewmodel.ProfileViewModel
 import com.tapcard.app.domain.wallet.WalletConfig
+import com.tapcard.app.domain.model.SyncStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,6 +48,8 @@ fun DashboardScreen(
 
     val nfcState by viewModel.nfcState.collectAsState()
     var isSharingActive by remember { mutableStateOf(false) }
+    
+    val syncStatus by viewModel.syncStatus.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.nfcProgrammingResult.collect { (success, message) ->
@@ -110,6 +113,22 @@ fun DashboardScreen(
 
             // Card Preview
             BusinessCardPreview(profile = profile)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Sync Status
+            val statusText = when(syncStatus) {
+                SyncStatus.SAVED_LOCALLY -> "Offline: Saved Locally"
+                SyncStatus.SYNCING -> "Syncing with Supabase..."
+                SyncStatus.SYNCED -> "Synced to Cloud"
+                SyncStatus.SYNC_FAILED -> "Cloud Sync Failed"
+                SyncStatus.SIGN_IN_TO_SYNC -> "Sign in to Sync to Cloud"
+            }
+            Text(
+                text = statusText,
+                style = MaterialTheme.typography.labelMedium,
+                color = if (syncStatus == SyncStatus.SYNC_FAILED) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 

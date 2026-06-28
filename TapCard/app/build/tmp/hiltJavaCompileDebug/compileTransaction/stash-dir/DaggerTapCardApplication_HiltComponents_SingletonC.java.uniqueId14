@@ -11,9 +11,13 @@ import com.tapcard.app.data.local.AppDatabase;
 import com.tapcard.app.data.local.ProfileDao;
 import com.tapcard.app.di.AppModule;
 import com.tapcard.app.di.AppModule_ProvideAppDatabaseFactory;
+import com.tapcard.app.di.AppModule_ProvideAuthRepositoryFactory;
 import com.tapcard.app.di.AppModule_ProvideProfileDaoFactory;
 import com.tapcard.app.di.AppModule_ProvideProfileRepositoryFactory;
+import com.tapcard.app.domain.auth.AuthRepository;
 import com.tapcard.app.domain.repository.ProfileRepository;
+import com.tapcard.app.ui.viewmodel.AuthViewModel;
+import com.tapcard.app.ui.viewmodel.AuthViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.tapcard.app.ui.viewmodel.ProfileViewModel;
 import com.tapcard.app.ui.viewmodel.ProfileViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.tapcard.app.utils.NfcService;
@@ -35,7 +39,9 @@ import dagger.hilt.android.internal.modules.ApplicationContextModule;
 import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
+import dagger.internal.MapBuilder;
 import dagger.internal.Preconditions;
+import dagger.internal.SetBuilder;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -377,7 +383,7 @@ public final class DaggerTapCardApplication_HiltComponents_SingletonC {
 
     @Override
     public Set<String> getViewModelKeys() {
-      return Collections.<String>singleton(ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide());
+      return SetBuilder.<String>newSetBuilder(2).add(AuthViewModel_HiltModules_KeyModule_ProvideFactory.provide()).add(ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide()).build();
     }
 
     @Override
@@ -403,6 +409,8 @@ public final class DaggerTapCardApplication_HiltComponents_SingletonC {
 
     private final ViewModelCImpl viewModelCImpl = this;
 
+    private Provider<AuthViewModel> authViewModelProvider;
+
     private Provider<ProfileViewModel> profileViewModelProvider;
 
     private ViewModelCImpl(SingletonCImpl singletonCImpl,
@@ -418,12 +426,13 @@ public final class DaggerTapCardApplication_HiltComponents_SingletonC {
     @SuppressWarnings("unchecked")
     private void initialize(final SavedStateHandle savedStateHandleParam,
         final ViewModelLifecycle viewModelLifecycleParam) {
-      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.authViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
     }
 
     @Override
     public Map<String, Provider<ViewModel>> getHiltViewModelMap() {
-      return Collections.<String, Provider<ViewModel>>singletonMap("com.tapcard.app.ui.viewmodel.ProfileViewModel", ((Provider) profileViewModelProvider));
+      return MapBuilder.<String, Provider<ViewModel>>newMapBuilder(2).put("com.tapcard.app.ui.viewmodel.AuthViewModel", ((Provider) authViewModelProvider)).put("com.tapcard.app.ui.viewmodel.ProfileViewModel", ((Provider) profileViewModelProvider)).build();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -447,7 +456,10 @@ public final class DaggerTapCardApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.tapcard.app.ui.viewmodel.ProfileViewModel 
+          case 0: // com.tapcard.app.ui.viewmodel.AuthViewModel 
+          return (T) new AuthViewModel(singletonCImpl.provideAuthRepositoryProvider.get());
+
+          case 1: // com.tapcard.app.ui.viewmodel.ProfileViewModel 
           return (T) new ProfileViewModel(singletonCImpl.provideProfileRepositoryProvider.get(), singletonCImpl.qRExportServiceProvider.get(), singletonCImpl.nfcServiceProvider.get());
 
           default: throw new AssertionError(id);
@@ -529,6 +541,8 @@ public final class DaggerTapCardApplication_HiltComponents_SingletonC {
 
     private final SingletonCImpl singletonCImpl = this;
 
+    private Provider<AuthRepository> provideAuthRepositoryProvider;
+
     private Provider<AppDatabase> provideAppDatabaseProvider;
 
     private Provider<ProfileDao> provideProfileDaoProvider;
@@ -547,11 +561,12 @@ public final class DaggerTapCardApplication_HiltComponents_SingletonC {
 
     @SuppressWarnings("unchecked")
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
-      this.provideAppDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 2));
-      this.provideProfileDaoProvider = DoubleCheck.provider(new SwitchingProvider<ProfileDao>(singletonCImpl, 1));
-      this.provideProfileRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ProfileRepository>(singletonCImpl, 0));
-      this.qRExportServiceProvider = DoubleCheck.provider(new SwitchingProvider<QRExportService>(singletonCImpl, 3));
-      this.nfcServiceProvider = DoubleCheck.provider(new SwitchingProvider<NfcService>(singletonCImpl, 4));
+      this.provideAuthRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<AuthRepository>(singletonCImpl, 0));
+      this.provideAppDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 3));
+      this.provideProfileDaoProvider = DoubleCheck.provider(new SwitchingProvider<ProfileDao>(singletonCImpl, 2));
+      this.provideProfileRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ProfileRepository>(singletonCImpl, 1));
+      this.qRExportServiceProvider = DoubleCheck.provider(new SwitchingProvider<QRExportService>(singletonCImpl, 4));
+      this.nfcServiceProvider = DoubleCheck.provider(new SwitchingProvider<NfcService>(singletonCImpl, 5));
     }
 
     @Override
@@ -587,19 +602,22 @@ public final class DaggerTapCardApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.tapcard.app.domain.repository.ProfileRepository 
+          case 0: // com.tapcard.app.domain.auth.AuthRepository 
+          return (T) AppModule_ProvideAuthRepositoryFactory.provideAuthRepository();
+
+          case 1: // com.tapcard.app.domain.repository.ProfileRepository 
           return (T) AppModule_ProvideProfileRepositoryFactory.provideProfileRepository(singletonCImpl.provideProfileDaoProvider.get());
 
-          case 1: // com.tapcard.app.data.local.ProfileDao 
+          case 2: // com.tapcard.app.data.local.ProfileDao 
           return (T) AppModule_ProvideProfileDaoFactory.provideProfileDao(singletonCImpl.provideAppDatabaseProvider.get());
 
-          case 2: // com.tapcard.app.data.local.AppDatabase 
+          case 3: // com.tapcard.app.data.local.AppDatabase 
           return (T) AppModule_ProvideAppDatabaseFactory.provideAppDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 3: // com.tapcard.app.utils.QRExportService 
+          case 4: // com.tapcard.app.utils.QRExportService 
           return (T) new QRExportService(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 4: // com.tapcard.app.utils.NfcService 
+          case 5: // com.tapcard.app.utils.NfcService 
           return (T) new NfcService(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
           default: throw new AssertionError(id);
