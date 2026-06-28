@@ -4,6 +4,10 @@
         "source": "com.tapcard.app-main-60:/xml/backup_rules.xml"
     },
     {
+        "merged": "com.tapcard.app-merged_res-58:/xml_provider_paths.xml.flat",
+        "source": "com.tapcard.app-main-60:/xml/provider_paths.xml"
+    },
+    {
         "merged": "com.tapcard.app-merged_res-58:/xml_data_extraction_rules.xml.flat",
         "source": "com.tapcard.app-main-60:/xml/data_extraction_rules.xml"
     }

@@ -628,3 +628,4 @@ int styleable WalletFragmentStyle_maskedWalletDetailsLogoTextColor 9
 int styleable WalletFragmentStyle_maskedWalletDetailsTextAppearance 10
 int xml backup_rules 0x7f0d0000
 int xml data_extraction_rules 0x7f0d0001
+int xml provider_paths 0x7f0d0002

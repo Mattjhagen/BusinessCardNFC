@@ -1,9 +1,20 @@
 -- Merging decision tree log ---
+provider#androidx.core.content.FileProvider
+INJECTED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:30:9-38:20
+	android:grantUriPermissions
+		ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:34:13-47
+	android:authorities
+		INJECTED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml
+		ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:32:13-64
+	android:exported
+		ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:33:13-37
+	android:name
+		ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:31:13-62
 manifest
-ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:2:1-30:12
-INJECTED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:2:1-30:12
-INJECTED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:2:1-30:12
-INJECTED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:2:1-30:12
+ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:2:1-40:12
+INJECTED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:2:1-40:12
+INJECTED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:2:1-40:12
+INJECTED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:2:1-40:12
 MERGED from [androidx.room:room-ktx:2.6.1] /Users/matty/.gradle/caches/transforms-3/a067bfa62bf7615f440f8bca0251a9d4/transformed/jetified-room-ktx-2.6.1/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.room:room-runtime:2.6.1] /Users/matty/.gradle/caches/transforms-3/4972290f09e5323625a7574060fe770b/transformed/room-runtime-2.6.1/AndroidManifest.xml:17:1-31:12
 MERGED from [androidx.hilt:hilt-navigation-compose:1.1.0] /Users/matty/.gradle/caches/transforms-3/59bfd97910fac17384beb84b7cea44bb/transformed/jetified-hilt-navigation-compose-1.1.0/AndroidManifest.xml:2:1-7:12
@@ -96,8 +107,8 @@ ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidMa
 	android:name
 		ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:7:19-54
 application
-ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:9:5-29:19
-INJECTED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:9:5-29:19
+ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:9:5-39:19
+INJECTED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:9:5-39:19
 MERGED from [androidx.room:room-runtime:2.6.1] /Users/matty/.gradle/caches/transforms-3/4972290f09e5323625a7574060fe770b/transformed/room-runtime-2.6.1/AndroidManifest.xml:23:5-29:19
 MERGED from [androidx.room:room-runtime:2.6.1] /Users/matty/.gradle/caches/transforms-3/4972290f09e5323625a7574060fe770b/transformed/room-runtime-2.6.1/AndroidManifest.xml:23:5-29:19
 MERGED from [com.google.android.gms:play-services-identity:18.0.1] /Users/matty/.gradle/caches/transforms-3/99f5a360edb5ca2567fc20c51d37a105/transformed/jetified-play-services-identity-18.0.1/AndroidManifest.xml:22:5-20
@@ -162,6 +173,12 @@ category#android.intent.category.LAUNCHER
 ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:26:17-77
 	android:name
 		ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:26:27-74
+meta-data#android.support.FILE_PROVIDER_PATHS
+ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:35:13-37:58
+	android:resource
+		ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:37:17-55
+	android:name
+		ADDED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml:36:17-67
 uses-sdk
 INJECTED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/matty/Git_Repos/BusinessCardNFC/TapCard/app/src/main/AndroidManifest.xml

@@ -374,6 +374,7 @@ com.tapcard.app:attr/windowTransitionStyle = 0x7f03005d
 com.tapcard.app:color/pay_button_generic_ripple_color_light = 0x7f040016
 com.tapcard.app:attr/buttonTheme = 0x7f030007
 com.tapcard.app:id/text = 0x7f07007b
+com.tapcard.app:xml/provider_paths = 0x7f0d0002
 com.tapcard.app:attr/targetPackage = 0x7f030050
 com.tapcard.app:attr/environment = 0x7f03001b
 com.tapcard.app:attr/cameraBearing = 0x7f03000c

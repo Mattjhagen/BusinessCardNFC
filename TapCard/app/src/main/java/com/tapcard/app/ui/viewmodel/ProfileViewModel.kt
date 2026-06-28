@@ -12,9 +12,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import android.graphics.Bitmap
+import android.content.Intent
+import com.tapcard.app.utils.QRExportService
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor(private val repository: ProfileRepository) : ViewModel() {
+class ProfileViewModel @Inject constructor(
+    private val repository: ProfileRepository,
+    private val qrExportService: QRExportService
+) : ViewModel() {
     private val _profileState = MutableStateFlow(Profile())
     val profileState: StateFlow<Profile> = _profileState.asStateFlow()
     
@@ -43,7 +49,15 @@ class ProfileViewModel @Inject constructor(private val repository: ProfileReposi
     }
 
     fun getShareableUrl(): String {
-        val username = profileState.value.username.takeIf { it.isNotBlank() } ?: "user123"
+        val username = profileState.value.username.ifBlank { profileState.value.id.toString() }
         return "https://tapcard.app/card/$username"
+    }
+
+    fun saveQrToGallery(bitmap: Bitmap): Boolean {
+        return qrExportService.saveQrToGallery(bitmap)
+    }
+
+    fun shareQrCode(bitmap: Bitmap, text: String): Intent? {
+        return qrExportService.shareQrCode(bitmap, text)
     }
 }

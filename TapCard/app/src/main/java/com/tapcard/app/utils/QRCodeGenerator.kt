@@ -3,15 +3,21 @@ package com.tapcard.app.utils
 import android.graphics.Bitmap
 import android.graphics.Color
 import com.google.zxing.BarcodeFormat
+import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
+import java.util.EnumMap
 
 object QRCodeGenerator {
-    fun generateQRCode(content: String, size: Int = 512): Bitmap? {
+    fun generateQRCode(content: String, size: Int = 1024): Bitmap? {
         if (content.isBlank()) return null
         
         return try {
+            val hints = EnumMap<EncodeHintType, Any>(EncodeHintType::class.java)
+            // A margin of 2 provides a safe minimum quiet zone without over-stripping
+            hints[EncodeHintType.MARGIN] = 2
+
             val writer = QRCodeWriter()
-            val bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, size, size)
+            val bitMatrix = writer.encode(content, BarcodeFormat.QR_CODE, size, size, hints)
             val width = bitMatrix.width
             val height = bitMatrix.height
             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)

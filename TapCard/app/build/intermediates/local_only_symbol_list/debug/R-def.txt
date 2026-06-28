@@ -4,3 +4,4 @@ string app_name
 style Theme.TapCard
 xml backup_rules
 xml data_extraction_rules
+xml provider_paths

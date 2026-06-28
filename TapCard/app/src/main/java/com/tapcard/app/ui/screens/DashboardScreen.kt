@@ -13,9 +13,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import android.content.Intent
 import com.tapcard.app.ui.components.BusinessCardPreview
 import com.tapcard.app.utils.QRCodeGenerator
 import com.tapcard.app.ui.viewmodel.ProfileViewModel
@@ -30,9 +33,11 @@ fun DashboardScreen(
     val shareUrl = viewModel.getShareableUrl()
     val context = LocalContext.current
 
-    // Generate QR Code bitmap
+    val clipboardManager = LocalClipboardManager.current
+
+    // Generate high-resolution QR Code bitmap (1024x1024) for both display and export
     val qrCodeBitmap = remember(shareUrl) {
-        QRCodeGenerator.generateQRCode(shareUrl, size = 400)
+        QRCodeGenerator.generateQRCode(shareUrl, size = 1024)
     }
 
     Scaffold(
@@ -75,6 +80,44 @@ fun DashboardScreen(
                     contentDescription = "QR Code",
                     modifier = Modifier.size(200.dp)
                 )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Action Buttons for QR and Link
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                OutlinedButton(onClick = {
+                    qrCodeBitmap?.let { bitmap ->
+                        viewModel.shareQrCode(bitmap, "Here is my digital business card: $shareUrl")?.let { intent ->
+                            context.startActivity(Intent.createChooser(intent, "Share QR Code"))
+                        }
+                    }
+                }) {
+                    Text("Share QR")
+                }
+
+                OutlinedButton(onClick = {
+                    qrCodeBitmap?.let { bitmap ->
+                        val saved = viewModel.saveQrToGallery(bitmap)
+                        if (saved) {
+                            Toast.makeText(context, "Saved to gallery", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Failed to save", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }) {
+                    Text("Save QR")
+                }
+
+                OutlinedButton(onClick = {
+                    clipboardManager.setText(AnnotatedString(shareUrl))
+                    Toast.makeText(context, "Link copied!", Toast.LENGTH_SHORT).show()
+                }) {
+                    Text("Copy Link")
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
