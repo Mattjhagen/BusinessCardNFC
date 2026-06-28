@@ -16,6 +16,7 @@ import com.tapcard.app.di.AppModule_ProvideProfileRepositoryFactory;
 import com.tapcard.app.domain.repository.ProfileRepository;
 import com.tapcard.app.ui.viewmodel.ProfileViewModel;
 import com.tapcard.app.ui.viewmodel.ProfileViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.tapcard.app.utils.QRExportService;
 import dagger.hilt.android.ActivityRetainedLifecycle;
 import dagger.hilt.android.ViewModelLifecycle;
 import dagger.hilt.android.flags.HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule;
@@ -446,7 +447,7 @@ public final class DaggerTapCardApplication_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.tapcard.app.ui.viewmodel.ProfileViewModel 
-          return (T) new ProfileViewModel(singletonCImpl.provideProfileRepositoryProvider.get());
+          return (T) new ProfileViewModel(singletonCImpl.provideProfileRepositoryProvider.get(), singletonCImpl.qRExportServiceProvider.get());
 
           default: throw new AssertionError(id);
         }
@@ -533,6 +534,8 @@ public final class DaggerTapCardApplication_HiltComponents_SingletonC {
 
     private Provider<ProfileRepository> provideProfileRepositoryProvider;
 
+    private Provider<QRExportService> qRExportServiceProvider;
+
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
       this.applicationContextModule = applicationContextModuleParam;
       initialize(applicationContextModuleParam);
@@ -544,6 +547,7 @@ public final class DaggerTapCardApplication_HiltComponents_SingletonC {
       this.provideAppDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 2));
       this.provideProfileDaoProvider = DoubleCheck.provider(new SwitchingProvider<ProfileDao>(singletonCImpl, 1));
       this.provideProfileRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ProfileRepository>(singletonCImpl, 0));
+      this.qRExportServiceProvider = DoubleCheck.provider(new SwitchingProvider<QRExportService>(singletonCImpl, 3));
     }
 
     @Override
@@ -587,6 +591,9 @@ public final class DaggerTapCardApplication_HiltComponents_SingletonC {
 
           case 2: // com.tapcard.app.data.local.AppDatabase 
           return (T) AppModule_ProvideAppDatabaseFactory.provideAppDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 3: // com.tapcard.app.utils.QRExportService 
+          return (T) new QRExportService(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
           default: throw new AssertionError(id);
         }

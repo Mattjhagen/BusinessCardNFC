@@ -15,14 +15,21 @@ import javax.inject.Inject
 import android.graphics.Bitmap
 import android.content.Intent
 import com.tapcard.app.utils.QRExportService
+import com.tapcard.app.utils.NfcService
+import com.tapcard.app.utils.NfcState
+import android.app.Activity
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val repository: ProfileRepository,
-    private val qrExportService: QRExportService
+    private val qrExportService: QRExportService,
+    private val nfcService: NfcService
 ) : ViewModel() {
     private val _profileState = MutableStateFlow(Profile())
     val profileState: StateFlow<Profile> = _profileState.asStateFlow()
+    
+    private val _nfcState = MutableStateFlow(nfcService.getNfcState())
+    val nfcState: StateFlow<NfcState> = _nfcState.asStateFlow()
     
     private val _isSaved = MutableStateFlow(false)
     val isSaved = _isSaved.asStateFlow()
@@ -59,5 +66,18 @@ class ProfileViewModel @Inject constructor(
 
     fun shareQrCode(bitmap: Bitmap, text: String): Intent? {
         return qrExportService.shareQrCode(bitmap, text)
+    }
+
+    fun checkNfcState() {
+        _nfcState.value = nfcService.getNfcState()
+    }
+
+    fun startNfcSharing(activity: Activity): Boolean {
+        checkNfcState()
+        return nfcService.startSharing(activity, getShareableUrl())
+    }
+
+    fun stopNfcSharing(activity: Activity) {
+        nfcService.stopSharing(activity)
     }
 }

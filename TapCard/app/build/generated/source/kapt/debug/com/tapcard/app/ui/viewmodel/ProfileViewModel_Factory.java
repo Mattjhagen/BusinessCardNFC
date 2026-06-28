@@ -2,6 +2,7 @@
 package com.tapcard.app.ui.viewmodel;
 
 import com.tapcard.app.domain.repository.ProfileRepository;
+import com.tapcard.app.utils.NfcService;
 import com.tapcard.app.utils.QRExportService;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
@@ -23,24 +24,27 @@ public final class ProfileViewModel_Factory implements Factory<ProfileViewModel>
 
   private final Provider<QRExportService> qrExportServiceProvider;
 
+  private final Provider<NfcService> nfcServiceProvider;
+
   public ProfileViewModel_Factory(Provider<ProfileRepository> repositoryProvider,
-      Provider<QRExportService> qrExportServiceProvider) {
+      Provider<QRExportService> qrExportServiceProvider, Provider<NfcService> nfcServiceProvider) {
     this.repositoryProvider = repositoryProvider;
     this.qrExportServiceProvider = qrExportServiceProvider;
+    this.nfcServiceProvider = nfcServiceProvider;
   }
 
   @Override
   public ProfileViewModel get() {
-    return newInstance(repositoryProvider.get(), qrExportServiceProvider.get());
+    return newInstance(repositoryProvider.get(), qrExportServiceProvider.get(), nfcServiceProvider.get());
   }
 
   public static ProfileViewModel_Factory create(Provider<ProfileRepository> repositoryProvider,
-      Provider<QRExportService> qrExportServiceProvider) {
-    return new ProfileViewModel_Factory(repositoryProvider, qrExportServiceProvider);
+      Provider<QRExportService> qrExportServiceProvider, Provider<NfcService> nfcServiceProvider) {
+    return new ProfileViewModel_Factory(repositoryProvider, qrExportServiceProvider, nfcServiceProvider);
   }
 
   public static ProfileViewModel newInstance(ProfileRepository repository,
-      QRExportService qrExportService) {
-    return new ProfileViewModel(repository, qrExportService);
+      QRExportService qrExportService, NfcService nfcService) {
+    return new ProfileViewModel(repository, qrExportService, nfcService);
   }
 }

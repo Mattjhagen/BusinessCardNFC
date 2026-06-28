@@ -19,8 +19,16 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import android.content.Intent
+import android.app.Activity
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import com.tapcard.app.ui.components.BusinessCardPreview
 import com.tapcard.app.utils.QRCodeGenerator
+import com.tapcard.app.utils.NfcState
 import com.tapcard.app.ui.viewmodel.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,6 +40,32 @@ fun DashboardScreen(
     val profile by viewModel.profileState.collectAsState()
     val shareUrl = viewModel.getShareableUrl()
     val context = LocalContext.current
+    val activity = context as? Activity
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    val nfcState by viewModel.nfcState.collectAsState()
+    var isSharingActive by remember { mutableStateOf(false) }
+
+    // Stop NFC sharing if the composable leaves the composition or goes to background
+    DisposableEffect(lifecycleOwner, activity) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.checkNfcState()
+            } else if (event == Lifecycle.Event.ON_PAUSE) {
+                if (isSharingActive && activity != null) {
+                    viewModel.stopNfcSharing(activity)
+                    isSharingActive = false
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            if (isSharingActive && activity != null) {
+                viewModel.stopNfcSharing(activity)
+            }
+        }
+    }
 
     val clipboardManager = LocalClipboardManager.current
 
@@ -123,17 +157,46 @@ fun DashboardScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             // NFC Button
+            val nfcButtonText = when {
+                nfcState == NfcState.UNAVAILABLE -> "NFC Unavailable"
+                nfcState == NfcState.DISABLED -> "NFC Disabled (Enable in Settings)"
+                isSharingActive -> "Sharing Active (Ready to tap)"
+                else -> "Share via NFC"
+            }
+            
+            val isNfcEnabled = nfcState == NfcState.READY
+
             Button(
                 onClick = {
-                    // TODO: Implement actual NFC NdefMessage broadcast
-                    Toast.makeText(context, "NFC broadcast started for $shareUrl (Mock)", Toast.LENGTH_SHORT).show()
+                    if (activity != null) {
+                        if (isSharingActive) {
+                            viewModel.stopNfcSharing(activity)
+                            isSharingActive = false
+                            Toast.makeText(context, "NFC sharing stopped", Toast.LENGTH_SHORT).show()
+                        } else {
+                            val success = viewModel.startNfcSharing(activity)
+                            if (success) {
+                                isSharingActive = true
+                                Toast.makeText(context, "Ready to tap!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, "NFC Share failed / unsupported", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } else {
+                        Toast.makeText(context, "Cannot start NFC (no activity)", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = MaterialTheme.shapes.medium
+                shape = MaterialTheme.shapes.medium,
+                enabled = isNfcEnabled,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isSharingActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
-                Text("Share via NFC", fontWeight = FontWeight.Bold)
+                Text(nfcButtonText, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
