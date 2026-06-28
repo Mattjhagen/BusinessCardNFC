@@ -7,13 +7,21 @@ import androidx.navigation.compose.rememberNavController
 import com.tapcard.app.ui.screens.DashboardScreen
 import com.tapcard.app.ui.screens.OnboardingScreen
 import com.tapcard.app.ui.screens.EditorScreen
+import com.tapcard.app.ui.screens.AuthScreen
 import com.tapcard.app.ui.viewmodel.ProfileViewModel
 
 @Composable
 fun AppNavigation(sharedViewModel: ProfileViewModel) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "onboarding") {
+    NavHost(navController = navController, startDestination = "auth") {
+        composable("auth") {
+            AuthScreen(
+                onAuthSuccess = {
+                    navController.navigate("onboarding") { popUpTo("auth") { inclusive = true } }
+                }
+            )
+        }
         composable("onboarding") {
             OnboardingScreen(
                 viewModel = sharedViewModel,

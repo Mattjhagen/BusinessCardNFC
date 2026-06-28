@@ -1,8 +1,12 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -20,6 +24,19 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Load .env values
+        val envFile = project.rootProject.file(".env")
+        val envProperties = Properties()
+        if (envFile.exists()) {
+            envProperties.load(FileInputStream(envFile))
+        }
+
+        val supabaseUrl = envProperties.getProperty("SUPABASE_PROJECT_URL", "")
+        val supabaseAnonKey = envProperties.getProperty("SUPABASE_ANON_PUBLIC", envProperties.getProperty("SUPABASE_PUBLISHABLE_KEY", ""))
+
+        buildConfigField("String", "SUPABASE_PROJECT_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_PUBLISHABLE_KEY", "\"$supabaseAnonKey\"")
     }
 
     buildTypes {
@@ -37,6 +54,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.3"
@@ -61,9 +79,13 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.5")
     implementation("com.google.zxing:core:3.5.2") // QR Code
 
-    // Supabase / Ktor dependencies placeholder
+    // Supabase Dependencies
+    val supabaseVersion = "2.0.0"
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:$supabaseVersion")
+    implementation("io.github.jan-tennert.supabase:gotrue-kt:$supabaseVersion")
     implementation("io.ktor:ktor-client-core:2.3.6")
     implementation("io.ktor:ktor-client-cio:2.3.6")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     // Google Wallet / Pay
     implementation("com.google.android.gms:play-services-wallet:19.2.1")

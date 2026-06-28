@@ -7,6 +7,8 @@ import com.tapcard.app.data.repository.LocalProfileRepositoryImpl
 import com.tapcard.app.domain.repository.ProfileRepository
 import com.tapcard.app.domain.wallet.WalletService
 import com.tapcard.app.data.wallet.GoogleWalletServiceImpl
+import com.tapcard.app.domain.auth.AuthRepository
+import com.tapcard.app.data.repository.SupabaseAuthRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -40,5 +42,11 @@ object AppModule {
     @Singleton
     fun provideWalletService(): WalletService {
         return GoogleWalletServiceImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(): AuthRepository {
+        return SupabaseAuthRepositoryImpl()
     }
 }
