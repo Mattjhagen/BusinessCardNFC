@@ -1,1 +1,4 @@
 .env
+google-services.json
+app/google-services.json
+TapCard/app/google-services.json
