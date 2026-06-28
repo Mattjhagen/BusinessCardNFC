@@ -39,12 +39,36 @@ class SyncProfileRepositoryImpl @Inject constructor(
     private val _syncError = MutableStateFlow<String?>(null)
     override val syncError: Flow<String?> = _syncError.asStateFlow()
 
+    private val prefs = context.getSharedPreferences("tapcard_prefs", Context.MODE_PRIVATE)
+
+    private val _activeProfileId = MutableStateFlow<String?>(prefs.getString("active_profile_id", null))
+    override val activeProfileIdFlow: Flow<String?> = _activeProfileId.asStateFlow()
+
+    override fun setActiveProfileId(id: String) {
+        prefs.edit().putString("active_profile_id", id).apply()
+        _activeProfileId.value = id
+    }
+
     override fun getProfileFlow(): Flow<Profile?> {
-        return profileDao.getProfileFlow().map { it?.toDomainModel() }
+        return profileDao.getAllProfilesFlow().map { profiles ->
+            if (profiles.isEmpty()) return@map null
+            val activeId = _activeProfileId.value
+            val activeProfile = profiles.find { it.id == activeId } ?: profiles.first()
+            if (_activeProfileId.value != activeProfile.id) {
+                setActiveProfileId(activeProfile.id)
+            }
+            activeProfile.toDomainModel()
+        }
+    }
+
+    override fun getAllProfilesFlow(): Flow<List<Profile>> {
+        return profileDao.getAllProfilesFlow().map { list -> list.map { it.toDomainModel() } }
     }
 
     override suspend fun getProfile(): Profile? {
-        return profileDao.getProfile()?.toDomainModel()
+        val activeId = _activeProfileId.value
+        val entity = if (activeId != null) profileDao.getProfile(activeId) else profileDao.getFirstProfile()
+        return entity?.toDomainModel()
     }
 
     override suspend fun saveProfile(profile: Profile) {
@@ -104,7 +128,7 @@ class SyncProfileRepositoryImpl @Inject constructor(
 
             _syncStatus.value = SyncStatus.SYNCING
 
-            val remoteDto = profileToUpload.toRemoteDto().copy(id = userId)
+            val remoteDto = profileToUpload.toRemoteDto().copy(userId = userId)
 
             client.postgrest["profiles"].upsert(remoteDto)
             

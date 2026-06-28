@@ -7,8 +7,11 @@ import com.tapcard.app.domain.model.SyncStatus
 
 interface ProfileRepository {
     fun getProfileFlow(): Flow<Profile?>
+    fun getAllProfilesFlow(): Flow<List<Profile>>
     suspend fun getProfile(): Profile?
     suspend fun saveProfile(profile: Profile)
+    fun setActiveProfileId(id: String)
+    val activeProfileIdFlow: Flow<String?>
     
     val syncStatus: Flow<SyncStatus>
     val syncError: Flow<String?>

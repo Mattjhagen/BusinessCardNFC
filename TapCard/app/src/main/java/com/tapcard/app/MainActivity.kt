@@ -13,11 +13,21 @@ import com.tapcard.app.ui.theme.TapCardTheme
 import com.tapcard.app.ui.viewmodel.ProfileViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
+import com.tapcard.app.utils.AnalyticsManager
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        try {
+            AnalyticsManager.initialize(Firebase.analytics)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         setContent {
             val sharedViewModel: ProfileViewModel = hiltViewModel()
             

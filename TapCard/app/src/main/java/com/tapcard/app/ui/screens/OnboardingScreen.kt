@@ -6,11 +6,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import com.tapcard.app.ui.viewmodel.ProfileViewModel
@@ -22,7 +25,8 @@ fun OnboardingScreen(
     viewModel: ProfileViewModel,
     onComplete: () -> Unit
 ) {
-    val profile by viewModel.profileState.collectAsState()
+    val profile by viewModel.profileState.collectAsStateWithLifecycle()
+    val hapticFeedback = LocalHapticFeedback.current
 
     var fullName by remember { mutableStateOf(profile.fullName) }
     var jobTitle by remember { mutableStateOf(profile.jobTitle) }
@@ -194,6 +198,7 @@ fun OnboardingScreen(
 
             Button(
                 onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     viewModel.updateProfile(
                         profile.copy(
                             fullName = fullName,

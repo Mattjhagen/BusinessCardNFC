@@ -8,7 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -19,6 +19,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import android.content.Intent
 import android.app.Activity
 import androidx.compose.runtime.DisposableEffect
@@ -38,19 +40,24 @@ import com.tapcard.app.domain.model.SyncStatus
 @Composable
 fun DashboardScreen(
     viewModel: ProfileViewModel,
-    onEditCard: () -> Unit
+    onEditCard: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
-    val profile by viewModel.profileState.collectAsState()
+    val profile by viewModel.profileState.collectAsStateWithLifecycle()
+    val profilesList by viewModel.profilesList.collectAsStateWithLifecycle()
     val shareUrl = viewModel.getShareableUrl()
     val context = LocalContext.current
     val activity = context as? Activity
     val lifecycleOwner = LocalLifecycleOwner.current
+    val hapticFeedback = LocalHapticFeedback.current
 
-    val nfcState by viewModel.nfcState.collectAsState()
+    val nfcState by viewModel.nfcState.collectAsStateWithLifecycle()
     var isSharingActive by remember { mutableStateOf(false) }
     
-    val syncStatus by viewModel.syncStatus.collectAsState()
-    val syncError by viewModel.syncError.collectAsState()
+    val syncStatus by viewModel.syncStatus.collectAsStateWithLifecycle()
+    val syncError by viewModel.syncError.collectAsStateWithLifecycle()
+
+    var showProfileMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.nfcProgrammingResult.collect { (success, message) ->
@@ -93,10 +100,45 @@ fun DashboardScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Dashboard", fontWeight = FontWeight.Bold) },
+                title = { 
+                    Box {
+                        TextButton(onClick = { showProfileMenu = true }) {
+                            Text(profile.profileName, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                            Spacer(Modifier.width(4.dp))
+                            Text("▼", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface)
+                        }
+                        DropdownMenu(
+                            expanded = showProfileMenu,
+                            onDismissRequest = { showProfileMenu = false }
+                        ) {
+                            profilesList.forEach { p ->
+                                DropdownMenuItem(
+                                    text = { Text(p.profileName) },
+                                    onClick = {
+                                        viewModel.switchProfile(p.id)
+                                        showProfileMenu = false
+                                    }
+                                )
+                            }
+                            Divider()
+                            DropdownMenuItem(
+                                text = { Text("+ Create New Identity") },
+                                onClick = {
+                                    // In a real app, this would show a dialog. For now, create a hardcoded one.
+                                    val count = profilesList.size + 1
+                                    viewModel.createNewProfile("Identity $count")
+                                    showProfileMenu = false
+                                }
+                            )
+                        }
+                    }
+                },
                 actions = {
                     TextButton(onClick = onEditCard) {
                         Text("Edit", fontWeight = FontWeight.Bold)
+                    }
+                    IconButton(onClick = onNavigateToSettings) {
+                        Text("⚙️")
                     }
                 }
             )
@@ -183,6 +225,7 @@ fun DashboardScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 OutlinedButton(onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     qrCodeBitmap?.let { bitmap ->
                         viewModel.shareQrCode(bitmap, "Here is my digital business card: $shareUrl")?.let { intent ->
                             context.startActivity(Intent.createChooser(intent, "Share QR Code"))
@@ -193,6 +236,7 @@ fun DashboardScreen(
                 }
 
                 OutlinedButton(onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     qrCodeBitmap?.let { bitmap ->
                         val saved = viewModel.saveQrToGallery(bitmap)
                         if (saved) {
@@ -206,6 +250,7 @@ fun DashboardScreen(
                 }
 
                 OutlinedButton(onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     clipboardManager.setText(AnnotatedString(shareUrl))
                     Toast.makeText(context, "Link copied!", Toast.LENGTH_SHORT).show()
                 }) {
@@ -227,6 +272,7 @@ fun DashboardScreen(
 
             Button(
                 onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     if (activity != null) {
                         if (isSharingActive) {
                             viewModel.stopNfcProgramming(activity)
@@ -236,6 +282,7 @@ fun DashboardScreen(
                             val success = viewModel.startNfcProgramming(activity)
                             if (success) {
                                 isSharingActive = true
+                                com.tapcard.app.utils.AnalyticsManager.logNfcProgrammed()
                                 Toast.makeText(context, "Ready to program! Hold NFC tag near.", Toast.LENGTH_SHORT).show()
                             } else {
                                 Toast.makeText(context, "NFC Program failed / unsupported", Toast.LENGTH_SHORT).show()
@@ -263,6 +310,7 @@ fun DashboardScreen(
             // Google Wallet Button
             OutlinedButton(
                 onClick = {
+                    com.tapcard.app.utils.AnalyticsManager.logWalletButtonTapped()
                     if (WalletConfig.isGoogleWalletEnabled) {
                         // Real Wallet implementation goes here when backend is ready
                     } else {

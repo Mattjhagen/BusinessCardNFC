@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tapcard.app.data.repository.SyncProfileRepositoryImplTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-06-28T15:54:45" hostname="Mattys-MacBook-Air-4.local" time="0.543">
+  <properties/>
+  <testcase name="testOfflineSave_SetsPendingSync" classname="com.tapcard.app.data.repository.SyncProfileRepositoryImplTest" time="0.543"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

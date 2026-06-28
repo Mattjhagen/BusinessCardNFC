@@ -1,7 +1,9 @@
 package com.tapcard.app.domain.model
 
 data class Profile(
-    val id: String = "",
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val userId: String = "",
+    val profileName: String = "Personal",
     val fullName: String = "",
     val jobTitle: String = "",
     val company: String = "",

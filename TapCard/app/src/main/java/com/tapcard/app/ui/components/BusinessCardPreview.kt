@@ -16,24 +16,37 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.SolidColor
 import coil.compose.AsyncImage
 import com.tapcard.app.domain.model.Profile
 
 @Composable
 fun BusinessCardPreview(profile: Profile, modifier: Modifier = Modifier) {
-    val backgroundColor = if (profile.isDarkTheme) Color(0xFF1E1E1E) else Color.White
-    val textColor = if (profile.isDarkTheme) Color.White else Color.Black
+    val gradientColors = if (profile.isDarkTheme) {
+        listOf(Color(0xFF1E1E1E), Color(0xFF121212))
+    } else {
+        listOf(Color(0xFFE8F5E9), Color(0xFFC8E6C9))
+    }
+    
+    val textColor = if (profile.isDarkTheme) Color.White else Color(0xFF2E3D49)
     val secondaryTextColor = textColor.copy(alpha = 0.7f)
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(1.586f), // Standard credit card ratio
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+        shape = RoundedCornerShape(24.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
     ) {
-        Column(
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.linearGradient(gradientColors))
+        ) {
+            Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
@@ -78,23 +91,44 @@ fun BusinessCardPreview(profile: Profile, modifier: Modifier = Modifier) {
                     }
 
                     Column {
-                        Text(
-                            text = profile.fullName.ifBlank { "Your Name" },
-                            color = textColor,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = profile.jobTitle.ifBlank { "Job Title" },
-                            color = secondaryTextColor,
-                            fontSize = 14.sp
-                        )
-                        Text(
-                            text = profile.company.ifBlank { "Company" },
-                            color = secondaryTextColor,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                        AnimatedContent(
+                            targetState = profile.fullName.ifBlank { "Your Name" },
+                            transitionSpec = { fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300)) },
+                            label = "NameAnimation"
+                        ) { targetName ->
+                            Text(
+                                text = targetName,
+                                color = textColor,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+                        
+                        AnimatedContent(
+                            targetState = profile.jobTitle.ifBlank { "Job Title" },
+                            transitionSpec = { fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300)) },
+                            label = "JobTitleAnimation"
+                        ) { targetTitle ->
+                            Text(
+                                text = targetTitle,
+                                color = secondaryTextColor,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                        
+                        AnimatedContent(
+                            targetState = profile.company.ifBlank { "Company" },
+                            transitionSpec = { fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300)) },
+                            label = "CompanyAnimation"
+                        ) { targetCompany ->
+                            Text(
+                                text = targetCompany,
+                                color = secondaryTextColor,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
                 
@@ -137,6 +171,8 @@ fun BusinessCardPreview(profile: Profile, modifier: Modifier = Modifier) {
                     )
                 }
             }
+            }
         }
     }
 }
+

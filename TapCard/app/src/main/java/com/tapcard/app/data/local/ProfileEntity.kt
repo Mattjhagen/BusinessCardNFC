@@ -6,7 +6,9 @@ import com.tapcard.app.domain.model.Profile
 
 @Entity(tableName = "profile")
 data class ProfileEntity(
-    @PrimaryKey val id: String = "local_profile",
+    @PrimaryKey val id: String = java.util.UUID.randomUUID().toString(),
+    val userId: String = "",
+    val profileName: String = "Personal",
     val fullName: String = "",
     val jobTitle: String = "",
     val company: String = "",
@@ -27,6 +29,8 @@ data class ProfileEntity(
 fun ProfileEntity.toDomainModel(): Profile {
     return Profile(
         id = this.id,
+        userId = this.userId,
+        profileName = this.profileName,
         fullName = this.fullName,
         jobTitle = this.jobTitle,
         company = this.company,
@@ -48,6 +52,8 @@ fun ProfileEntity.toDomainModel(): Profile {
 fun Profile.toEntity(): ProfileEntity {
     return ProfileEntity(
         id = this.id,
+        userId = this.userId,
+        profileName = this.profileName,
         fullName = this.fullName,
         jobTitle = this.jobTitle,
         company = this.company,

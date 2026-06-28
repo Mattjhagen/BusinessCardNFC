@@ -2,7 +2,7 @@ import { getProfile } from '@/lib/data'
 import { supabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
-import { MapPin, Briefcase, Mail, Globe, Phone, Download } from 'lucide-react'
+import { Briefcase, Mail, Globe, Phone, Download } from 'lucide-react'
 
 export default async function ProfileView({ username, profileName = 'personal' }: { username: string, profileName?: string }) {
   const profile = await getProfile(username, profileName)

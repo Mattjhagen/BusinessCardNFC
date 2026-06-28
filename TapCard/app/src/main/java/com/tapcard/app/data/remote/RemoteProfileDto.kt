@@ -9,6 +9,12 @@ data class RemoteProfileDto(
     @SerialName("id")
     val id: String,
     
+    @SerialName("user_id")
+    val userId: String,
+    
+    @SerialName("profile_name")
+    val profileName: String,
+    
     @SerialName("full_name")
     val fullName: String?,
     
@@ -40,6 +46,8 @@ data class RemoteProfileDto(
 fun Profile.toRemoteDto(): RemoteProfileDto {
     return RemoteProfileDto(
         id = this.id,
+        userId = this.userId,
+        profileName = this.profileName,
         fullName = this.fullName.ifEmpty { null },
         jobTitle = this.jobTitle.ifEmpty { null },
         company = this.company.ifEmpty { null },

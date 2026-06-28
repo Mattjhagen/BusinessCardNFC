@@ -3,13 +3,15 @@ package com.tapcard.app.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import com.tapcard.app.ui.components.BusinessCardPreview
@@ -23,10 +25,11 @@ fun EditorScreen(
     viewModel: ProfileViewModel,
     onBack: () -> Unit
 ) {
-    val profile by viewModel.profileState.collectAsState()
+    val profile by viewModel.profileState.collectAsStateWithLifecycle()
     
     var username by remember { mutableStateOf(profile.username) }
-    val validationState by viewModel.usernameValidationState.collectAsState()
+    val validationState by viewModel.usernameValidationState.collectAsStateWithLifecycle()
+    val hapticFeedback = LocalHapticFeedback.current
     
     val profilePhotoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -160,6 +163,7 @@ fun EditorScreen(
             
             Button(
                 onClick = {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     viewModel.updateProfile(profile.copy(username = username))
                     viewModel.saveProfile()
                     onBack()

@@ -8,6 +8,9 @@ import com.tapcard.app.ui.screens.DashboardScreen
 import com.tapcard.app.ui.screens.OnboardingScreen
 import com.tapcard.app.ui.screens.EditorScreen
 import com.tapcard.app.ui.screens.AuthScreen
+import com.tapcard.app.ui.screens.SettingsScreen
+import com.tapcard.app.ui.screens.FeedbackScreen
+import com.tapcard.app.ui.screens.DeveloperSettingsScreen
 import com.tapcard.app.ui.viewmodel.ProfileViewModel
 
 @Composable
@@ -31,13 +34,32 @@ fun AppNavigation(sharedViewModel: ProfileViewModel) {
         composable("dashboard") {
             DashboardScreen(
                 viewModel = sharedViewModel,
-                onEditCard = { navController.navigate("editor") }
+                onEditCard = { navController.navigate("editor") },
+                onNavigateToSettings = { navController.navigate("settings") }
             )
         }
         composable("editor") {
             EditorScreen(
                 viewModel = sharedViewModel,
                 onBack = { navController.popBackStack() }
+            )
+        }
+        composable("settings") {
+            SettingsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToFeedback = { navController.navigate("feedback") },
+                onNavigateToDeveloperSettings = { navController.navigate("developer_settings") }
+            )
+        }
+        composable("feedback") {
+            FeedbackScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("developer_settings") {
+            DeveloperSettingsScreen(
+                viewModel = sharedViewModel,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }
