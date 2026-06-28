@@ -50,6 +50,7 @@ fun DashboardScreen(
     var isSharingActive by remember { mutableStateOf(false) }
     
     val syncStatus by viewModel.syncStatus.collectAsState()
+    val syncError by viewModel.syncError.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.nfcProgrammingResult.collect { (success, message) ->
@@ -130,6 +131,32 @@ fun DashboardScreen(
                 style = MaterialTheme.typography.labelMedium,
                 color = if (syncStatus == SyncStatus.SYNC_FAILED) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            if (syncStatus == SyncStatus.SYNC_FAILED && syncError != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Sync Error",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = syncError ?: "Unknown error",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 

@@ -11,5 +11,6 @@ interface ProfileRepository {
     suspend fun saveProfile(profile: Profile)
     
     val syncStatus: Flow<SyncStatus>
+    val syncError: Flow<String?>
     suspend fun validateUsernameUniqueness(username: String): Boolean
 }

@@ -15,6 +15,8 @@ import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.storage.storage
+import io.github.jan.supabase.exceptions.RestException
+import io.github.jan.supabase.exceptions.HttpRequestException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,6 +36,9 @@ class SyncProfileRepositoryImpl @Inject constructor(
     private val _syncStatus = MutableStateFlow(SyncStatus.SAVED_LOCALLY)
     override val syncStatus: Flow<SyncStatus> = _syncStatus.asStateFlow()
 
+    private val _syncError = MutableStateFlow<String?>(null)
+    override val syncError: Flow<String?> = _syncError.asStateFlow()
+
     override fun getProfileFlow(): Flow<Profile?> {
         return profileDao.getProfileFlow().map { it?.toDomainModel() }
     }
@@ -47,6 +52,7 @@ class SyncProfileRepositoryImpl @Inject constructor(
         var entity = profile.toEntity().copy(isPendingSync = true)
         profileDao.saveProfile(entity)
         _syncStatus.value = SyncStatus.SAVED_LOCALLY
+        _syncError.value = null
 
         // 2. If signed in and Supabase configured, sync to Supabase
         if (client == null) {
@@ -105,10 +111,34 @@ class SyncProfileRepositoryImpl @Inject constructor(
             // Mark as synced locally
             profileDao.saveProfile(entity.copy(isPendingSync = false))
             _syncStatus.value = SyncStatus.SYNCED
+            _syncError.value = null
         } catch (e: Exception) {
             e.printStackTrace()
             // 3. If offline or error, keep local data and mark as pending sync
             _syncStatus.value = SyncStatus.SYNC_FAILED
+            
+            _syncError.value = when (e) {
+                is RestException -> {
+                    when {
+                        e.message?.contains("does not exist") == true && e.message?.contains("profiles") == true -> "Table 'profiles' is missing."
+                        e.message?.contains("duplicate key value violates unique constraint") == true -> "Username is already taken."
+                        e.message?.contains("new row violates row-level security policy") == true -> "RLS Policy failure. Check your Postgres policies."
+                        e.message?.contains("bucket") == true -> "Storage bucket is missing or unauthenticated."
+                        else -> "Backend error: ${e.message}"
+                    }
+                }
+                is HttpRequestException -> "Network error. Please check your connection."
+                else -> {
+                    // Check for storage bucket errors wrapped in other exceptions
+                    if (e.message?.contains("Bucket") == true || e.message?.contains("does not exist") == true) {
+                        "Storage bucket 'profile-images' might be missing."
+                    } else if (e.message?.contains("row-level security") == true || e.message?.contains("rls") == true) {
+                        "RLS Policy failure."
+                    } else {
+                        "An unexpected error occurred."
+                    }
+                }
+            }
         }
     }
 
