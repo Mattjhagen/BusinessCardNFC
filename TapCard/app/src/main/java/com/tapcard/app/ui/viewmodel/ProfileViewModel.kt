@@ -9,6 +9,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,6 +33,9 @@ class ProfileViewModel @Inject constructor(
     private val _nfcState = MutableStateFlow(nfcService.getNfcState())
     val nfcState: StateFlow<NfcState> = _nfcState.asStateFlow()
     
+    private val _nfcProgrammingResult = MutableSharedFlow<Pair<Boolean, String>>()
+    val nfcProgrammingResult = _nfcProgrammingResult.asSharedFlow()
+
     private val _isSaved = MutableStateFlow(false)
     val isSaved = _isSaved.asStateFlow()
 
@@ -72,12 +77,16 @@ class ProfileViewModel @Inject constructor(
         _nfcState.value = nfcService.getNfcState()
     }
 
-    fun startNfcSharing(activity: Activity): Boolean {
+    fun startNfcProgramming(activity: Activity): Boolean {
         checkNfcState()
-        return nfcService.startSharing(activity, getShareableUrl())
+        return nfcService.startTagProgramming(activity, getShareableUrl()) { success, message ->
+            viewModelScope.launch {
+                _nfcProgrammingResult.emit(Pair(success, message))
+            }
+        }
     }
 
-    fun stopNfcSharing(activity: Activity) {
-        nfcService.stopSharing(activity)
+    fun stopNfcProgramming(activity: Activity) {
+        nfcService.stopTagProgramming(activity)
     }
 }

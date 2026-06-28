@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -47,14 +48,24 @@ fun DashboardScreen(
     val nfcState by viewModel.nfcState.collectAsState()
     var isSharingActive by remember { mutableStateOf(false) }
 
-    // Stop NFC sharing if the composable leaves the composition or goes to background
+    LaunchedEffect(Unit) {
+        viewModel.nfcProgrammingResult.collect { (success, message) ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            if (success && isSharingActive && activity != null) {
+                viewModel.stopNfcProgramming(activity)
+                isSharingActive = false
+            }
+        }
+    }
+
+    // Stop NFC programming if the composable leaves the composition or goes to background
     DisposableEffect(lifecycleOwner, activity) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 viewModel.checkNfcState()
             } else if (event == Lifecycle.Event.ON_PAUSE) {
                 if (isSharingActive && activity != null) {
-                    viewModel.stopNfcSharing(activity)
+                    viewModel.stopNfcProgramming(activity)
                     isSharingActive = false
                 }
             }
@@ -63,7 +74,7 @@ fun DashboardScreen(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             if (isSharingActive && activity != null) {
-                viewModel.stopNfcSharing(activity)
+                viewModel.stopNfcProgramming(activity)
             }
         }
     }
@@ -161,8 +172,8 @@ fun DashboardScreen(
             val nfcButtonText = when {
                 nfcState == NfcState.UNAVAILABLE -> "NFC Unavailable"
                 nfcState == NfcState.DISABLED -> "NFC Disabled (Enable in Settings)"
-                isSharingActive -> "Sharing Active (Ready to tap)"
-                else -> "Share via NFC"
+                isSharingActive -> "Ready to Program (Hold Tag Near)"
+                else -> "Program NFC Tag"
             }
             
             val isNfcEnabled = nfcState == NfcState.READY
@@ -171,16 +182,16 @@ fun DashboardScreen(
                 onClick = {
                     if (activity != null) {
                         if (isSharingActive) {
-                            viewModel.stopNfcSharing(activity)
+                            viewModel.stopNfcProgramming(activity)
                             isSharingActive = false
-                            Toast.makeText(context, "NFC sharing stopped", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "NFC programming stopped", Toast.LENGTH_SHORT).show()
                         } else {
-                            val success = viewModel.startNfcSharing(activity)
+                            val success = viewModel.startNfcProgramming(activity)
                             if (success) {
                                 isSharingActive = true
-                                Toast.makeText(context, "Ready to tap!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Ready to program! Hold NFC tag near.", Toast.LENGTH_SHORT).show()
                             } else {
-                                Toast.makeText(context, "NFC Share failed / unsupported", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "NFC Program failed / unsupported", Toast.LENGTH_SHORT).show()
                             }
                         }
                     } else {
