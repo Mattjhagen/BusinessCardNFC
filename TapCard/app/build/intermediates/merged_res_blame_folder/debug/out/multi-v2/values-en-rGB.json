@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.tapcard.app-mergeDebugResources-50:/values-en-rGB/values-en-rGB.xml",
+            "outputFile": "com.tapcard.app-mergeDebugResources-54:/values-en-rGB/values-en-rGB.xml",
             "map": [
                 {
                     "source": "/Users/matty/.gradle/caches/transforms-3/c6dbd810adafa9aacf6e3dd7067ea573/transformed/jetified-play-services-base-18.0.1/res/values-en-rGB/values.xml",
